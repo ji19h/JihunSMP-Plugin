@@ -28,4 +28,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
+          - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: JihunSMP-Plugin
+          path: target/*.jar
       run: mvn -B package --file pom.xml
