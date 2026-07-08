@@ -22,7 +22,7 @@ public class LocateCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
-        if (args.length == 0) {
+         if (args.length == 0) {
             player.sendMessage("§c사용법: /locate <플레이어명>");
             return true;
         }
@@ -48,7 +48,7 @@ public class LocateCommand implements CommandExecutor {
         player.sendActionBar(coordinates);
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             player.sendActionBar("§c위치 추적 종료");
-        }, 60L);
+            }, 60L);
         player.sendMessage("§a다이아 " + DIAMOND_COST + "개를 소비하여 위치를 확인했습니다.");
         return true;
     }
