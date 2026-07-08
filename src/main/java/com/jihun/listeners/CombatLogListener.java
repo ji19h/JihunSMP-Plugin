@@ -1,54 +1,61 @@
 package com.jihun.listeners;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.projectiles.ProjectileSource;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 public class CombatLogListener implements Listener {
     private static final long COMBAT_TIME_MS = 15_000L;
-    private final JavaPlugin plugin;
     private final Map<UUID, Long> combatUntil = new HashMap<>();
+
     public CombatLogListener(JavaPlugin plugin) {
-        this.plugin = plugin;
+        Bukkit.getScheduler().runTaskTimer(plugin,
+                () -> combatUntil.entrySet().removeIf(entry -> entry.getValue() <= System.currentTimeMillis()),
+                20L, 20L);
     }
-    @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-        Player victim = (Player) event.getEntity();
-        Player attacker = getAttackingPlayer(event.getDamager());
-        if (attacker == null || attacker.equals(victim)) {
-            return;
-        }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player victim)) return;
+        Player attacker = findAttacker(event.getDamager());
+        if (attacker == null || attacker.equals(victim)) return;
         long until = System.currentTimeMillis() + COMBAT_TIME_MS;
         combatUntil.put(victim.getUniqueId(), until);
         combatUntil.put(attacker.getUniqueId(), until);
     }
+
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (!isInCombat(player)) {
-            combatUntil.remove(player.getUniqueId());
-            return;
+        Long until = combatUntil.remove(player.getUniqueId());
+        if (until != null && until > System.currentTimeMillis() && !player.isDead()) {
+            Bukkit.broadcastMessage("§c" + player.getName() + "님이 전투 중 종료하여 사망 처리되었습니다.");
+            player.setHealth(0.0);
         }
-        player.setHealth(0.0);
-        combatUntil.remove(player.getUniqueId());
-        Bukkit.broadcastMessage("§c[전투로그] " + player.getName() + "님이 전투 중 나가서 사망 처리되었습니다.");
     }
-    private boolean isInCombat(Player player) {
-        Long until = combatUntil.get(player.getUniqueId());
-        return until != null && until > System.currentTimeMillis();
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        combatUntil.remove(event.getEntity().getUniqueId());
     }
-    private Player getAttackingPlayer(Entity damager) {
-        if (damager instanceof Player) {
-            return (Player) damager;
+
+    private Player findAttacker(Entity damager) {
+        if (damager instanceof Player player) return player;
+        if (damager instanceof Projectile projectile) {
+            ProjectileSource shooter = projectile.getShooter();
+            if (shooter instanceof Player player) return player;
         }
         return null;
     }
