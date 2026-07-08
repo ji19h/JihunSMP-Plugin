@@ -43,24 +43,19 @@ public class PlayerDataManager {
     }
 
     private PlayerData loadPlayerData(Player player) {
-        UUID uuid = player.getUniqueId();
-        String path = "players." + uuid;
-        String name = dataConfig.getString(path + ".name", player.getName());
-        int coins = dataConfig.getInt(path + ".coins", 100);
-        String team = dataConfig.getString(path + ".team", "NONE");
-        int kills = dataConfig.getInt(path + ".kills", 0);
-        int killStreak = dataConfig.getInt(path + ".kill-streak", 0);
+    UUID uuid = player.getUniqueId();
+    String path = "players." + uuid;
 
-        // 수정된 부분: PlayerData 생성 시 6개 인자 모두 전달
-        return new PlayerData(
-                uuid,
-                name,
-                coins,
-                team,
-                kills,
-                killStreak
-        );
-    }
+    String name = dataConfig.getString(path + ".name", player.getName());
+    int coins = dataConfig.getInt(path + ".coins", 100);
+    String team = dataConfig.getString(path + ".team", "NONE");
+    int kills = dataConfig.getInt(path + ".kills", 0);
+    int killStreak = dataConfig.getInt(path + ".kill-streak", 0);
+
+    // 반드시 6개 인자를 넘겨야 함
+    return new PlayerData(uuid, name, coins, team, kills, killStreak);
+}
+
 
     private void savePlayerData(PlayerData data) {
         String path = "players." + data.getUuid();
