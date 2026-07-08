@@ -1,43 +1,44 @@
 name: JihunSMP
-version: 1.0.0
+version: 1.1.0
 main: com.jihun.jihunSMP
-description: JihunSMP Plugin for PvP, Economy, and Enchantment System
+api-version: '1.20'
+description: JihunSMP PvP, economy, bounty, shop and enhancement plugin
 commands:
   tpa:
-    description: Teleport request to a player
-    usage: /tpa <player>
+    description: 텔레포트 요청
+    usage: /tpa <플레이어>
   tpaccept:
-    description: Accept teleport request
-    usage: /tpaccept <player>
+    description: 텔레포트 요청 수락
+    usage: /tpaccept <플레이어>
   tpadeny:
-    description: Deny teleport request
-    usage: /tpadeny <player>
+    description: 텔레포트 요청 거절
+    usage: /tpadeny <플레이어>
   locate:
-    description: Show player location, costs 5 diamonds
-    usage: /locate <player>
+    description: 다이아몬드 5개로 플레이어 위치 추적
+    usage: /locate <플레이어>
   coins:
-    description: Check your coins
+    description: 코인 확인
     usage: /coins
   coin:
-    description: Admin coin command
-    usage: /coin <give|take|set> <player> <amount>
+    description: 관리자 코인 설정
+    usage: /coin <give|take|set> <플레이어> <금액>
     permission: jihunsmp.admin
   bounty:
-    description: View auto bounties
+    description: 현상금 순위 확인
     usage: /bounty
   shop:
-    description: Open coin shop
-    usage: /shop
+    description: 코인 상점
+    usage: /shop [buy 번호]
   team:
-    description: Join a team (RED or BLUE)
+    description: 팀 참가
     usage: /team <RED|BLUE>
   myteam:
-    description: Check your team
+    description: 내 팀 확인
     usage: /myteam
   kills:
-    description: Check kill count
+    description: 킬 수 확인
     usage: /kills
 permissions:
   jihunsmp.admin:
-    description: Allows admin coin commands
+    description: 관리자 코인 명령어 권한
     default: op
