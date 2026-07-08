@@ -57,6 +57,7 @@ public class PlayerDataManager {
 }
 
 
+
     private void savePlayerData(PlayerData data) {
         String path = "players." + data.getUuid();
 
