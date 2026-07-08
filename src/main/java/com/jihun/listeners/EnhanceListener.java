@@ -1,26 +1,3 @@
-        Bukkit.broadcastMessage("§c[현상금] §e" + killer.getName() + "§f님의 현상금이 §e"
-                + newBounty + "원§f이 되었습니다!");
-        handleKillStreakReward(killer, streak);
-    }
-    private void handleKillStreakReward(Player killer, int streak) {
-        if (streak == 3) {
-            playerDataManager.addCoins(killer, 500);
-            killer.sendMessage("§6[킬스트릭] §e3연속 처치! 추가 500원 지급!");
-        } else if (streak == 5) {
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 30, 0));
-            Bukkit.broadcastMessage("§6[킬스트릭] §e" + killer.getName() + "§f님이 5연속 처치! 힘 버프 30초!");
-        } else if (streak == 10) {
-            playerDataManager.addCoins(killer, 2000);
-            killer.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE, 3));
-            Bukkit.broadcastMessage("§c[킬스트릭] " + killer.getName() + "님이 10연속 처치 중입니다!");
-        }
-    }
-}
-```
-============================================================
-4코드: src/main/java/com/jihun/listeners/EnhanceListener.java
-============================================================
-```java
 package com.jihun.listeners;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
