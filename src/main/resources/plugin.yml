@@ -2,7 +2,6 @@ name: JihunSMP
 version: 1.0.0
 main: com.jihun.jihunSMP
 description: JihunSMP Plugin for PvP, Economy, and Enchantment System
-
 commands:
   tpa:
     description: Teleport request to a player
@@ -14,11 +13,21 @@ commands:
     description: Deny teleport request
     usage: /tpadeny <player>
   locate:
-    description: Show player location (costs 1 diamond)
+    description: Show player location, costs 5 diamonds
     usage: /locate <player>
   coins:
     description: Check your coins
     usage: /coins
+  coin:
+    description: Admin coin command
+    usage: /coin <give|take|set> <player> <amount>
+    permission: jihunsmp.admin
+  bounty:
+    description: View auto bounties
+    usage: /bounty
+  shop:
+    description: Open coin shop
+    usage: /shop
   team:
     description: Join a team (RED or BLUE)
     usage: /team <RED|BLUE>
@@ -28,3 +37,7 @@ commands:
   kills:
     description: Check kill count
     usage: /kills
+permissions:
+  jihunsmp.admin:
+    description: Allows admin coin commands
+    default: op
