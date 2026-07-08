@@ -24,7 +24,7 @@ public class jihunSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, playerDataManager), this);
-
+getServer().getPluginManager().registerEvents(new EnhanceListener(playerDataManager), this);
         // 커맨드 등록
         getCommand("tpa").setExecutor(new TPACommand(tpaManager));
         getCommand("tpaccept").setExecutor(new TPAAcceptCommand(tpaManager));
