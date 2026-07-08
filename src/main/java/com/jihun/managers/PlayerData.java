@@ -1,4 +1,5 @@
 package com.jihun.managers;
+
 import java.util.UUID;
 public class PlayerData {
     private final UUID uuid;
