@@ -45,13 +45,13 @@ public class PlayerDataManager {
     private PlayerData loadPlayerData(Player player) {
         UUID uuid = player.getUniqueId();
         String path = "players." + uuid;
-
         String name = dataConfig.getString(path + ".name", player.getName());
         int coins = dataConfig.getInt(path + ".coins", 100);
         String team = dataConfig.getString(path + ".team", "NONE");
         int kills = dataConfig.getInt(path + ".kills", 0);
         int killStreak = dataConfig.getInt(path + ".kill-streak", 0);
 
+        // 수정된 부분: PlayerData 생성 시 6개 인자 모두 전달
         return new PlayerData(
                 uuid,
                 name,
@@ -81,6 +81,7 @@ public class PlayerDataManager {
             plugin.getLogger().warning("플레이어 데이터 저장 실패: " + e.getMessage());
         }
     }
+
     public void saveAllData() {
         for (PlayerData data : playerDataMap.values()) {
             savePlayerData(data);
@@ -94,7 +95,6 @@ public class PlayerDataManager {
             savePlayerData(data);
         }
     }
-
     public int getCoins(Player player) {
         return getPlayerData(player).getCoins();
     }
@@ -163,7 +163,6 @@ public class PlayerDataManager {
     public int getBounty(UUID uuid) {
         return dataConfig.getInt("bounties." + uuid + ".amount", 0);
     }
-
     public int increaseBounty(Player player, int amount) {
         String path = "bounties." + player.getUniqueId();
 
@@ -239,7 +238,6 @@ public class PlayerDataManager {
         if (online != null) {
             return online;
         }
-
         for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
             if (offlinePlayer.getName() != null &&
                     offlinePlayer.getName().equalsIgnoreCase(name)) {
