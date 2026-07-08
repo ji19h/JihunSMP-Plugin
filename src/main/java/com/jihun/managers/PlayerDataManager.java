@@ -41,7 +41,7 @@ public class PlayerDataManager {
         data.setPlayerName(player.getName());
         return data;
     }
-
+    
     private PlayerData loadPlayerData(Player player) {
     UUID uuid = player.getUniqueId();
     String path = "players." + uuid;
@@ -51,13 +51,8 @@ public class PlayerDataManager {
     String team = dataConfig.getString(path + ".team", "NONE");
     int kills = dataConfig.getInt(path + ".kills", 0);
     int killStreak = dataConfig.getInt(path + ".kill-streak", 0);
-
-    // 반드시 6개 인자를 넘겨야 함
     return new PlayerData(uuid, name, coins, team, kills, killStreak);
 }
-
-
-
     private void savePlayerData(PlayerData data) {
         String path = "players." + data.getUuid();
 
