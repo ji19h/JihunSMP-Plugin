@@ -1,15 +1,19 @@
 package com.jihun.commands;
+
+import com.jihun.managers.PlayerDataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import com.jihun.managers.PlayerDataManager;
+
 public class CoinAdminCommand implements CommandExecutor {
-    private final PlayerDataManager playerDataManager;
-    public CoinAdminCommand(PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+    private final PlayerDataManager dataManager;
+
+    public CoinAdminCommand(PlayerDataManager dataManager) {
+        this.dataManager = dataManager;
     }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("jihunsmp.admin")) {
@@ -22,33 +26,30 @@ public class CoinAdminCommand implements CommandExecutor {
         }
         Player target = Bukkit.getPlayerExact(args[1]);
         if (target == null) {
-            sender.sendMessage("§c접속 중인 플레이어만 수정할 수 있습니다.");
+            sender.sendMessage("§c해당 플레이어가 접속 중이 아닙니다.");
             return true;
         }
         int amount;
         try {
             amount = Integer.parseInt(args[2]);
+            if (amount < 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c금액은 숫자로 입력해야 합니다.");
+            sender.sendMessage("§c금액은 0 이상의 정수여야 합니다.");
             return true;
         }
-        if (amount < 0) {
-            sender.sendMessage("§c금액은 0 이상이어야 합니다.");
-            return true;
+
+        switch (args[0].toLowerCase()) {
+            case "give" -> dataManager.addCoins(target, amount);
+            case "take" -> dataManager.setCoins(target, dataManager.getCoins(target) - amount);
+            case "set" -> dataManager.setCoins(target, amount);
+            default -> {
+                sender.sendMessage("§c사용법: /coin <give|take|set> <플레이어> <금액>");
+                return true;
+            }
         }
-        String action = args[0].toLowerCase();
-        if (action.equals("give")) {
-            playerDataManager.addCoins(target, amount);
-            sender.sendMessage("§a" + target.getName() + "님에게 " + amount + "원을 지급했습니다.");
-        } else if (action.equals("take")) {
-            playerDataManager.removeCoins(target, amount);
-            sender.sendMessage("§a" + target.getName() + "님에게서 " + amount + "원을 차감했습니다.");
-        } else if (action.equals("set")) {
-            playerDataManager.setCoins(target, amount);
-            sender.sendMessage("§a" + target.getName() + "님의 코인을 " + amount + "원으로 설정했습니다.");
-        } else {
-            sender.sendMessage("§c사용법: /coin <give|take|set> <플레이어> <금액>");
-        }
+        sender.sendMessage("§a" + target.getName() + "님의 코인이 "
+                + dataManager.getCoins(target) + "원이 되었습니다.");
+        target.sendMessage("§e관리자가 코인을 변경했습니다. 현재 " + dataManager.getCoins(target) + "원");
         return true;
     }
 }
