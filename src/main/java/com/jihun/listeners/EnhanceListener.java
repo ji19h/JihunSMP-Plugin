@@ -1,5 +1,8 @@
 package com.jihun.listeners;
+
+import com.jihun.managers.PlayerDataManager;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,95 +11,70 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import com.jihun.managers.PlayerDataManager;
-import java.util.Random;
+
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class EnhanceListener implements Listener {
-    private static final int MAX_LEVEL = 10;
-    private static final int UPGRADE_COST = 100;
-    private final PlayerDataManager playerDataManager;
-    private final Random random = new Random();
-    public EnhanceListener(PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+    private static final int COST = 100;
+    private static final double[] CHANCES = {100, 90, 80, 70, 60, 50, 40, 30, 20, 1};
+    private static final Set<Material> WEAPONS = Set.of(
+            Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD,
+            Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD,
+            Material.WOODEN_AXE, Material.STONE_AXE, Material.IRON_AXE,
+            Material.GOLDEN_AXE, Material.DIAMOND_AXE, Material.NETHERITE_AXE);
+    private final PlayerDataManager dataManager;
+
+    public EnhanceListener(PlayerDataManager dataManager) {
+        this.dataManager = dataManager;
     }
+
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
-        Action action = event.getAction();
-        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.AIR) {
-            return;
-        }
-        Enchantment enchantment = getTargetEnchantment(item.getType());
-        if (enchantment == null) {
-            return;
-        }
-        event.setCancelled(true);
-        enhance(player, item, enchantment);
-    }
-    private void enhance(Player player, ItemStack item, Enchantment enchantment) {
-        int currentLevel = item.getEnchantmentLevel(enchantment);
-        if (currentLevel >= MAX_LEVEL) {
-            player.sendMessage("§c이미 10강입니다.");
-            return;
-        }
-        if (!playerDataManager.removeCoins(player, UPGRADE_COST)) {
-            player.sendMessage("§c코인이 부족합니다. 강화에는 100원이 필요합니다.");
-            return;
-        }
-        int nextLevel = currentLevel + 1;
-        int chance = getSuccessChance(nextLevel);
-        boolean success = random.nextInt(100) < chance;
-        if (success) {
-            item.addUnsafeEnchantment(enchantment, nextLevel);
-            updateItemName(item, nextLevel);
-            player.sendMessage("§a강화 성공! +" + nextLevel + "강 (" + chance + "%)");
+    public void onRightClick(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        ItemStack item = event.getItem();
+        if (item == null || item.getType().isAir()) return;
+
+        Enchantment enchantment;
+        if (WEAPONS.contains(item.getType())) {
+            enchantment = Enchantment.getByKey(NamespacedKey.minecraft("sharpness"));
+        } else if (isArmor(item.getType())) {
+            enchantment = Enchantment.getByKey(NamespacedKey.minecraft("protection"));
         } else {
-            player.sendMessage("§c강화 실패... 100원이 소모되었습니다. (" + chance + "%)");
-        }
-        player.sendMessage("§e남은 코인: §a" + playerDataManager.getCoins(player) + "원");
-    }
-    private int getSuccessChance(int targetLevel) {
-        if (targetLevel >= 10) {
-            return 1;
-        }
-        return 110 - (targetLevel * 10);
-    }
-    private Enchantment getTargetEnchantment(Material material) {
-        String name = material.name();
-        if (name.endsWith("_SWORD") || name.endsWith("_AXE")) {
-            return Enchantment.DAMAGE_ALL;
-        }
-        if (name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
-                || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS")) {
-            return Enchantment.PROTECTION_ENVIRONMENTAL;
-        }
-        return null;
-    }
-    private void updateItemName(ItemStack item, int level) {
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) {
             return;
         }
-        String baseName = getReadableName(item.getType());
-        meta.setDisplayName("§b+" + level + "강 §f" + baseName);
-        item.setItemMeta(meta);
-    }
-    private String getReadableName(Material material) {
-        String[] parts = material.name().toLowerCase().split("_");
-        StringBuilder builder = new StringBuilder();
-        for (String part : parts) {
-            if (builder.length() > 0) {
-                builder.append(" ");
-            }
-            builder.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+
+        if (enchantment == null) return;
+        event.setCancelled(true);
+        Player player = event.getPlayer();
+        int current = item.getEnchantmentLevel(enchantment);
+        if (current >= 10) {
+            player.sendMessage("§e이미 10강인 장비입니다.");
+            return;
         }
-        return builder.toString();
+        if (!dataManager.removeCoins(player, COST)) {
+            player.sendMessage("§c강화에는 100원이 필요합니다. 현재 " + dataManager.getCoins(player) + "원");
+            return;
+        }
+
+        int next = current + 1;
+        double chance = CHANCES[next - 1];
+        if (ThreadLocalRandom.current().nextDouble(100.0) < chance) {
+            item.addUnsafeEnchantment(enchantment, next);
+            player.sendMessage("§a강화 성공! §f" + next + "강 §7(성공 확률 " + formatChance(chance) + "%)");
+        } else {
+            player.sendMessage("§c강화 실패! §7장비는 유지됩니다. (성공 확률 " + formatChance(chance) + "%)");
+        }
+    }
+
+    private boolean isArmor(Material material) {
+        String name = material.name();
+        return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
+                || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");
+    }
+
+    private String formatChance(double chance) {
+        return chance == Math.rint(chance) ? Integer.toString((int) chance) : Double.toString(chance);
     }
 }
