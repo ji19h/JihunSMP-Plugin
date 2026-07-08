@@ -1,50 +1,55 @@
 package com.jihun;
-import org.bukkit.plugin.java.JavaPlugin;
-import com.jihun.listeners.*;
+
 import com.jihun.commands.*;
-import com.jihun.managers.*;
+import com.jihun.listeners.*;
+import com.jihun.managers.PlayerDataManager;
+import com.jihun.managers.SupplyCrateManager;
+import com.jihun.managers.TPAManager;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.java.JavaPlugin;
+
 public class jihunSMP extends JavaPlugin {
     private PlayerDataManager playerDataManager;
     private TPAManager tpaManager;
-    private SupplyCrateManager supplyCrateManager;
+
     @Override
     public void onEnable() {
-        getLogger().info("========================================");
-        getLogger().info("  JihunSMP Plugin v1.0.0 활성화!");
-        getLogger().info("========================================");
         playerDataManager = new PlayerDataManager(this);
         tpaManager = new TPAManager(this);
-        supplyCrateManager = new SupplyCrateManager(this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, playerDataManager), this);
+
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new EnhanceListener(playerDataManager), this);
         getServer().getPluginManager().registerEvents(new TeamDamageListener(playerDataManager), this);
         getServer().getPluginManager().registerEvents(new CombatLogListener(this), this);
-        getCommand("tpa").setExecutor(new TPACommand(tpaManager));
-        getCommand("tpaccept").setExecutor(new TPAAcceptCommand(tpaManager));
-        getCommand("tpadeny").setExecutor(new TPADenyCommand(tpaManager));
-        getCommand("locate").setExecutor(new LocateCommand(this, playerDataManager));
-        getCommand("coins").setExecutor(new CoinsCommand(playerDataManager));
-        getCommand("coin").setExecutor(new CoinAdminCommand(playerDataManager));
-        getCommand("bounty").setExecutor(new BountyCommand(playerDataManager));
-        getCommand("shop").setExecutor(new ShopCommand(playerDataManager));
-        getCommand("team").setExecutor(new TeamCommand(playerDataManager));
-        getCommand("myteam").setExecutor(new MyTeamCommand(playerDataManager));
-        getCommand("kills").setExecutor(new KillsCommand(playerDataManager));
-        supplyCrateManager.start();
+
+        command("tpa").setExecutor(new TPACommand(tpaManager));
+        command("tpaccept").setExecutor(new TPAAcceptCommand(tpaManager));
+        command("tpadeny").setExecutor(new TPADenyCommand(tpaManager));
+        command("locate").setExecutor(new LocateCommand(this, playerDataManager));
+        command("coins").setExecutor(new CoinsCommand(playerDataManager));
+        command("coin").setExecutor(new CoinAdminCommand(playerDataManager));
+        command("bounty").setExecutor(new BountyCommand(playerDataManager));
+        command("shop").setExecutor(new ShopCommand(playerDataManager));
+        command("team").setExecutor(new TeamCommand(playerDataManager));
+        command("myteam").setExecutor(new MyTeamCommand(playerDataManager));
+        command("kills").setExecutor(new KillsCommand(playerDataManager));
+
+        new SupplyCrateManager(this).start();
+        getLogger().info("JihunSMP Plugin v1.1.0 활성화!");
     }
+
+    private PluginCommand command(String name) {
+        PluginCommand command = getCommand(name);
+        if (command == null) throw new IllegalStateException("plugin.yml에 명령어가 없습니다: " + name);
+        return command;
+    }
+
     @Override
     public void onDisable() {
-        if (playerDataManager != null) {
-            playerDataManager.saveAllData();
-        }
-        getLogger().info("JihunSMP Plugin 비활성화!");
+        if (playerDataManager != null) playerDataManager.saveAllData();
     }
-    public PlayerDataManager getPlayerDataManager() {
-        return playerDataManager;
-    }
-    public TPAManager getTPAManager() {
-        return tpaManager;
-    }
+
+    public PlayerDataManager getPlayerDataManager() { return playerDataManager; }
+    public TPAManager getTPAManager() { return tpaManager; }
 }
