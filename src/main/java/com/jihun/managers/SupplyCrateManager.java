@@ -27,7 +27,7 @@ public class SupplyCrateManager {
     }
 
     private void dropCrate() {
-        List<Player> players = Bukkit.getOnlinePlayers().stream().toList();
+        List<? extends Player> players = Bukkit.getOnlinePlayers().stream().toList();
         if (players.isEmpty()) return;
         Player center = players.get(ThreadLocalRandom.current().nextInt(players.size()));
         World world = center.getWorld();
