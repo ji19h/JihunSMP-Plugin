@@ -22,7 +22,8 @@ public class jihunSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EnhanceListener(playerDataManager), this);
         getServer().getPluginManager().registerEvents(new TeamDamageListener(playerDataManager), this);
         getServer().getPluginManager().registerEvents(new CombatLogListener(this), this);
-
+        getServer().getPluginManager().registerEvents(new TeamDisplayListener(playerDataManager), this);
+        
         command("tpa").setExecutor(new TPACommand(tpaManager));
         command("tpaccept").setExecutor(new TPAAcceptCommand(tpaManager));
         command("tpadeny").setExecutor(new TPADenyCommand(tpaManager));
