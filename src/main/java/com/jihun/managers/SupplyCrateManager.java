@@ -53,7 +53,7 @@ public class SupplyCrateManager {
         placeRandom(inventory, new ItemStack(Material.GOLD_INGOT, randomAmount()));
         placeRandom(inventory, new ItemStack(Material.COAL, randomAmount()));
         placeRandom(inventory, new ItemStack(Material.EMERALD, randomAmount()));
-        placeRandom(inventory, new ItemStack(Material.DIAMOND, randomAmount()));
+        placeRandom(inventory, new ItemStack(Material.DIAMOND, ThreadLocalRandom.current().nextInt(1, 4)));
 
         chest.update(true);
 
